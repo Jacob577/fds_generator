@@ -21,6 +21,6 @@ There are instances where there is a need to iterate through multiple fds simula
 
 This is a test how to create multiple simulations for further research for wall temperatures thus it can be difficult to estimate through 2-zone models and tedious to setup CFD models for it. 
 
-This specific FDS file is the circular burner from the fire models given when FDS is installed and we iterate through the mass flux of the circular burner.
+This specific FDS file is the circular burner from the fire models given when FDS is installed and we iterate through the mass flux of the circular burner from 0.01 to 0.05 kg/m2.
 
 ![alt text](images/burner.png)

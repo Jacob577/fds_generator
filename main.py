@@ -1,7 +1,7 @@
 import os
 import keyboard
 import time
-
+import psutil
 
 class Main:
 
@@ -61,7 +61,21 @@ class Main:
 
 
 if __name__ == '__main__':
+    count = 0
     for i in range(5):
         Main(iteration=i).create_directory()
         Main(iteration=i).create_file(i*0.1)
+        count += 1
+        time.sleep(5)
+        if count >= 3:
+            not_again = True
+            while not_again:
+                time.sleep(30)
+                utilization = psutil.cpu_percent()
+                if float(utilization) > 60:
+                    not_again = True
+                else:
+                    not_again = False
+                    count = 0
+
 

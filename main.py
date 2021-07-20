@@ -62,7 +62,7 @@ class Main:
 
 if __name__ == '__main__':
     count = 0
-    for i in range(5):
+    for i in range(1):
         Main(iteration=i).create_directory()
         Main(iteration=i).create_file(i*0.1)
         count += 1

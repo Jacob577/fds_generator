@@ -1,0 +1,153 @@
+&HEAD CHID='FDS_automation', TITLE='FDS_automation'/
+&TIME T_END=10, WALL_INCREMENT = 1/ this will calculate heat transfer in solids every second
+&DUMP DT_DEVC=10, DT_HRR=10, DT_SLCF=10, DT_RESTART=50.,NFRAMES=110, DT_CTRL=10 /
+******************************************************
+&MESH ID='MESH_11', IJK=60,60,100, XB=-1.5,1.5,-1.5,1.5,0,5, MPI_PROCESS=0/ 
+
+&VENT ID='Vent1', SURF_ID='OPEN', MB='XMIN'/ 
+&VENT ID='Vent2', SURF_ID='OPEN', MB='XMAX'/ 
+&VENT ID='Vent3', SURF_ID='OPEN', MB='YMIN'/
+&VENT ID='Vent4', SURF_ID='OPEN', MB='YMAX'/ 
+&VENT ID='Vent5', SURF_ID='OPEN', MB='ZMAX'/ 
+&VENT ID='FLOOR', SURF_ID='CONCRETE_SURF_WALLS', MB='ZMIN'/
+
+&BNDF QUANTITY='WALL_TEMPERATURE' /
+&BNDF QUANTITY='RADIATIVE HEAT FLUX' /
+&BNDF QUANTITY='NET HEAT FLUX' /
+&BNDF QUANTITY='BURNING RATE' /
+&BNDF QUANTITY='GAUGE HEAT FLUX' /
+&BNDF QUANTITY='INCIDENT HEAT FLUX' /
+&BNDF QUANTITY='ADIABATIC SURFACE TEMPERATURE'/
+
+&MISC BAROCLINIC = .TRUE., TMPA=20.0, P_INF=101325., RESTART=.FALSE./
+&PRES VELOCITY_TOLERANCE = 0.05, MAX_PRESSURE_ITERATIONS=20. /
+
+******************************************************
+&REAC FUEL       = 'POLYURETHANE'
+      FYI        = 'C_6.3 H_7.1 N O_2.1, NFPA Handbook, Babrauskas'
+      SOOT_YIELD = 0.10
+      N          = 1.0
+      C          = 6.3
+      H          = 7.1
+      O          = 2.1  /
+
+******************************************************
+Materials
+******************************************************
+&MATL ID='CONCRETE'
+    SPECIFIC_HEAT=1,
+    CONDUCTIVITY=1.5,
+    DENSITY=2300.0/
+
+&SURF ID='CONCRETE_SURF_WALLS',
+      COLOR='GRAY',
+      BACKING='VOID',
+      MATL_ID(1,1)='CONCRETE',
+      MATL_MASS_FRACTION(1,1)=1.0,
+      THICKNESS(1)=0.16,
+      LAYER_DIVIDE=0.0/
+
+******************************************************
+FIRE LOADS
+******************************************************
+
+RAMP ID = 'FIRE_RAMP', T=0, F=0/
+
+RAMP ID = 'FIRE_RAMP', T=1, F=0.1/
+RAMP ID = 'FIRE_RAMP', T=10, F=0.1/
+
+RAMP ID = 'FIRE_RAMP', T=11, F=0.2/
+RAMP ID = 'FIRE_RAMP', T=20, F=0.2/
+
+RAMP ID = 'FIRE_RAMP', T=21, F=0.3/
+RAMP ID = 'FIRE_RAMP', T=30, F=0.3/
+
+RAMP ID = 'FIRE_RAMP', T=41, F=0.4/
+RAMP ID = 'FIRE_RAMP', T=50, F=0.4/
+
+RAMP ID = 'FIRE_RAMP', T=51, F=0.5/
+RAMP ID = 'FIRE_RAMP', T=60, F=0.5/
+
+RAMP ID = 'FIRE_RAMP', T=61, F=0.6/
+RAMP ID = 'FIRE_RAMP', T=70, F=0.6/
+
+RAMP ID = 'FIRE_RAMP', T=71, F=0.7/
+RAMP ID = 'FIRE_RAMP', T=80, F=0.7/
+
+RAMP ID = 'FIRE_RAMP', T=81, F=0.8/
+RAMP ID = 'FIRE_RAMP', T=90, F=0.8/
+
+RAMP ID = 'FIRE_RAMP', T=91, F=0.9/
+RAMP ID = 'FIRE_RAMP', T=100, F=0.9/
+
+RAMP ID = 'FIRE_RAMP', T=101, F=1/
+RAMP ID = 'FIRE_RAMP', T=110, F=1/
+
+&RAMP ID = 'FIRE_RAMP', T=0, F=1/
+&RAMP ID = 'FIRE_RAMP', T=3600, F=1/
+
+HRRPUA is determined by 
+
+&OBST ID='BURNER PAD', XB = -1.5,1.5, -1.5,1.5, 0,0.1, SURF_ID = 'CONCRETE_SURF_WALLS', COLOR = 'BLUE'/
+&SURF ID = 'BURNER', HRRPUA = 1000, RAMP_Q = 'FIRE_RAMP', TMP_FRONT = 300/
+
+This vent will have changing properties
+&VENT ID='BURNER', XB=-1.5,1.5,-1.5,1.5,0.1,0.1, XYZ=0,0,0.1, RADIUS=1.5, SURF_ID='BURNER', COLOR='RED'/
+
+******************************************************
+DEVICES
+******************************************************
+DEVC XB=0,0, 0,0, 0.05,4.95, QUANTITY='HRRPUL', POINTS=50, Z_ID='z', ID='qdot' /
+CTRL ID='pct', FUNCTION_TYPE='PERCENTILE', INPUT_ID='qdot', PERCENTILE=0.95 /
+DEVC ID='L_F', XYZ=0,0,0, QUANTITY='CONTROL VALUE', CTRL_ID='pct', UNITS='m' /
+
+&DEVC XYZ = 0     ,     0     ,     0.2   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      0.2   m'/
+&DEVC XYZ = 0     ,     0     ,     0.3   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      0.3   m'/
+&DEVC XYZ = 0     ,     0     ,     0.4   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      0.4   m'/
+&DEVC XYZ = 0     ,     0     ,     0.5   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      0.5   m'/
+&DEVC XYZ = 0     ,     0     ,     0.6   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      0.6   m'/
+&DEVC XYZ = 0     ,     0     ,     0.7   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      0.7   m'/
+&DEVC XYZ = 0     ,     0     ,     0.8   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      0.8   m'/
+&DEVC XYZ = 0     ,     0     ,     0.9   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      0.9   m'/
+&DEVC XYZ = 0     ,     0     ,     1     ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1     m'/
+&DEVC XYZ = 0     ,     0     ,     1.1   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.1   m'/
+&DEVC XYZ = 0     ,     0     ,     1.2   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.2   m'/
+&DEVC XYZ = 0     ,     0     ,     1.3   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.3   m'/
+&DEVC XYZ = 0     ,     0     ,     1.4   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.4   m'/
+&DEVC XYZ = 0     ,     0     ,     1.5   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.5   m'/
+&DEVC XYZ = 0     ,     0     ,     1.6   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.6   m'/
+&DEVC XYZ = 0     ,     0     ,     1.7   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.7   m'/
+&DEVC XYZ = 0     ,     0     ,     1.8   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.8   m'/
+&DEVC XYZ = 0     ,     0     ,     1.9   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      1.9   m'/
+&DEVC XYZ = 0     ,     0     ,     2     ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2     m'/
+&DEVC XYZ = 0     ,     0     ,     2.1   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.1   m'/
+&DEVC XYZ = 0     ,     0     ,     2.2   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.2   m'/
+&DEVC XYZ = 0     ,     0     ,     2.3   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.3   m'/
+&DEVC XYZ = 0     ,     0     ,     2.4   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.4   m'/
+&DEVC XYZ = 0     ,     0     ,     2.5   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.5   m'/
+&DEVC XYZ = 0     ,     0     ,     2.6   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.6   m'/
+&DEVC XYZ = 0     ,     0     ,     2.7   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.7   m'/
+&DEVC XYZ = 0     ,     0     ,     2.8   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.8   m'/
+&DEVC XYZ = 0     ,     0     ,     2.9   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      2.9   m'/
+&DEVC XYZ = 0     ,     0     ,     3     ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3     m'/
+&DEVC XYZ = 0     ,     0     ,     3.1   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.1   m'/
+&DEVC XYZ = 0     ,     0     ,     3.2   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.2   m'/
+&DEVC XYZ = 0     ,     0     ,     3.3   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.3   m'/
+&DEVC XYZ = 0     ,     0     ,     3.4   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.4   m'/
+&DEVC XYZ = 0     ,     0     ,     3.5   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.5   m'/
+&DEVC XYZ = 0     ,     0     ,     3.6   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.6   m'/
+&DEVC XYZ = 0     ,     0     ,     3.7   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.7   m'/
+&DEVC XYZ = 0     ,     0     ,     3.8   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.8   m'/
+&DEVC XYZ = 0     ,     0     ,     3.9   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      3.9   m'/
+&DEVC XYZ = 0     ,     0     ,     4     ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4     m'/
+&DEVC XYZ = 0     ,     0     ,     4.1   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.1   m'/
+&DEVC XYZ = 0     ,     0     ,     4.2   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.2   m'/
+&DEVC XYZ = 0     ,     0     ,     4.3   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.3   m'/
+&DEVC XYZ = 0     ,     0     ,     4.4   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.4   m'/
+&DEVC XYZ = 0     ,     0     ,     4.5   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.5   m'/
+&DEVC XYZ = 0     ,     0     ,     4.6   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.6   m'/
+&DEVC XYZ = 0     ,     0     ,     4.7   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.7   m'/
+&DEVC XYZ = 0     ,     0     ,     4.8   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.8   m'/
+&DEVC XYZ = 0     ,     0     ,     4.9   ,     QUANTITY = 'TEMPERATURE',     ID = ' TEMPERATURE      4.9   m'/
+
+
